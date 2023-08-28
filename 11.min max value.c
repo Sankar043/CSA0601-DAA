@@ -1,42 +1,54 @@
 #include <stdio.h>
-
-int binarySearch(int nums[], int target, int left, int right) {
-    while (left <= right) {
-        int mid = left + (right - left) / 2;
-        if (nums[mid] == target) {
-            return mid; // Target found
-        } else if (nums[mid] < target) {
-            left = mid + 1; // Adjust the left boundary
-        } else {
-            right = mid - 1; // Adjust the right boundary
-        }
+struct MinMax 
+{
+    int min;
+    int max;
+    int comparisons;
+};
+struct MinMax findMinMax(int arr[], int left, int right) 
+{
+    struct MinMax result, leftResult, rightResult;
+    int mid;
+    result.comparisons = 0;
+    if (left == right) 
+	{
+        result.min = result.max = arr[left];
+        return result;
     }
-    
-    return -1; // Target not found
+    if (right == left + 1) 
+	{
+        result.min = (arr[left] < arr[right]) ? arr[left] : arr[right];
+        result.max = (arr[left] > arr[right]) ? arr[left] : arr[right];
+        result.comparisons++;
+        return result;
+    }
+    mid = (left + right) / 2;
+    leftResult = findMinMax(arr, left, mid);
+    rightResult = findMinMax(arr, mid + 1, right);
+    result.comparisons += leftResult.comparisons + rightResult.comparisons;
+    result.min = (leftResult.min < rightResult.min) ? leftResult.min : rightResult.min;
+    result.max = (leftResult.max > rightResult.max) ? leftResult.max : rightResult.max;
+    return result;
 }
-
-int main() {
+int main() 
+{
     int n,i;
     printf("Enter the number of elements: ");
     scanf("%d", &n);
-
-    int nums[n];
-    printf("Enter the sorted array elements:\n");
-    for ( i = 0; i < n; i++) {
-        scanf("%d", &nums[i]);
+    if (n <= 0) 
+	{
+        printf("Illegal input.\n");
+        return 1;
     }
-
-    int target;
-    printf("Enter the target element to search for: ");
-    scanf("%d", &target);
-
-    int result = binarySearch(nums, target, 0, n - 1);
-
-    if (result != -1) {
-        printf("Target %d found at index %d.\n", target, result);
-    } else {
-        printf("Target %d not found in the array.\n", target);
+    int arr[n];
+    printf("Enter the elements:\n");
+    for ( i = 0; i < n; i++) 
+	{
+        scanf("%d", &arr[i]);
     }
-
+    struct MinMax result = findMinMax(arr, 0, n - 1);
+    printf("Min value: %d\n", result.min);
+    printf("Max value: %d\n", result.max);
+    printf("Number of comparisons: %d\n", result.comparisons);
     return 0;
 }
